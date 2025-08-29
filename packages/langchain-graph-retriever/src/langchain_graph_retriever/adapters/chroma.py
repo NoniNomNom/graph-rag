@@ -53,9 +53,18 @@ class ChromaAdapter(ShreddedLangchainAdapter[Chroma]):
     ) -> list[Document]:
         try:
             from chromadb.api.types import IncludeEnum
-        except (ImportError, ModuleNotFoundError):
-            msg = "please `pip install chromadb`"
-            raise ImportError(msg)
+            include=[
+                IncludeEnum.documents,
+                IncludeEnum.metadatas,
+                IncludeEnum.embeddings,
+            ]
+        except Exception as e:
+            print(e)
+            include=[
+                "documents",
+                "metadatas",
+                "embeddings"
+            ]
 
         if k > self.vector_store._collection.count():
             k = self.vector_store._collection.count()
@@ -66,11 +75,7 @@ class ChromaAdapter(ShreddedLangchainAdapter[Chroma]):
             query_embeddings=embedding,  # type: ignore
             n_results=k,
             where=filter,  # type: ignore
-            include=[
-                IncludeEnum.documents,
-                IncludeEnum.metadatas,
-                IncludeEnum.embeddings,
-            ],
+            include=include,
             **kwargs,
         )
 
